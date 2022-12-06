@@ -17,7 +17,7 @@ SECRET_KEY = 'my_key'
 
 LOCAL_DIR = '/2022/10/'
 REMOTE_DIR = 'images/2022/10/' # If no such folder, it will be created automatically
-LIMIT = False # Integer, Limit for uploaded files count. Set "False", if no limit required
+LIMIT = 0 # Integer, Limit for uploaded files count. Set 0, if no limit required
 IGNORE_EXTENSIONS = ['heic']
 
 
@@ -33,6 +33,7 @@ count = 0
 files_to_upload = []
 duplicate_files = []
 remote_file_list = []
+local_file_list = []
 
 print('Getting remote file list...')
 paginator = client.get_paginator('list_objects_v2')
@@ -48,16 +49,22 @@ for filename in os.listdir(LOCAL_DIR):
     # check if current path is a file
     if (not filename.split('.')[-1] in IGNORE_EXTENSIONS
         and os.path.isfile(os.path.join(LOCAL_DIR, filename))):
-        if filename in remote_file_list:
-            duplicate_files.append(filename)
-        else:
-            if LIMIT and count == LIMIT:
-                break
-            count += 1
-            files_to_upload.append(filename)
+        local_file_list.append(filename)
+
+print(f'Local files: {len(local_file_list)}')
+print('Comparing local and remote file lists...')
+
+for filename in tqdm(local_file_list):
+    if filename in remote_file_list:
+        duplicate_files.append(filename)
+    else:
+        if LIMIT and count == LIMIT:
+            break
+        files_to_upload.append(filename)
+        count += 1
 
 print(f'Found duplicate files: {len(duplicate_files)}')
-print(f'File to upload: {len(files_to_upload)}')
+print(f'Files to upload: {len(files_to_upload)}')
 
 for filename in tqdm(files_to_upload):
     try:
