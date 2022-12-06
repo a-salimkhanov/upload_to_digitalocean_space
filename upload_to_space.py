@@ -31,11 +31,10 @@ client = session.client('s3',
 
 count = 0
 files_to_upload = []
-duplicate_files = []
 remote_file_list = []
 local_file_list = []
 
-print('Getting remote file list...')
+print(f'Getting remote file list...')
 paginator = client.get_paginator('list_objects_v2')
 pages = paginator.paginate(Bucket=BUCKET_NAME, Prefix=REMOTE_DIR)
 
@@ -43,7 +42,7 @@ for page in pages:
     if 'Contents' in page:
         remote_file_list += [obj['Key'].split('/')[-1] for obj in page["Contents"]]
 
-print(f'Remote files: {len(remote_file_list)}')
+print(f'Remote files ({REMOTE_DIR}): {len(remote_file_list)}')
 
 for filename in os.listdir(LOCAL_DIR):
     # check if current path is a file
@@ -51,19 +50,12 @@ for filename in os.listdir(LOCAL_DIR):
         and os.path.isfile(os.path.join(LOCAL_DIR, filename))):
         local_file_list.append(filename)
 
-print(f'Local files: {len(local_file_list)}')
+print(f'Local files ({LOCAL_DIR}): {len(local_file_list)}')
 print('Comparing local and remote file lists...')
-
-for filename in tqdm(local_file_list):
-    if filename in remote_file_list:
-        duplicate_files.append(filename)
-    else:
-        if LIMIT and count == LIMIT:
-            break
-        files_to_upload.append(filename)
-        count += 1
-
-print(f'Found duplicate files: {len(duplicate_files)}')
+files_to_upload = list(set(local_file_list) - set(remote_file_list))
+if LIMIT:
+    files_to_upload = files_to_upload[:LIMIT]
+print(f'Found duplicate files: {(len(local_file_list) - len(files_to_upload))}')
 print(f'Files to upload: {len(files_to_upload)}')
 
 for filename in tqdm(files_to_upload):
