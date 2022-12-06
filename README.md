@@ -1,7 +1,7 @@
 # upload_to_digitalocean_space
 Python script for uploading files to DigitalOcean Space
 
-![image](https://user-images.githubusercontent.com/61108267/205073432-cb26dfb6-e06c-4fc3-8957-e4f30c97c031.png)
+![image](https://user-images.githubusercontent.com/61108267/205930851-d8c47ddf-54f5-4b47-930c-adfcb9f3e38f.png)
 
 - Ignores files already uploaded to Space
 - Ignores files with certain extensions 
