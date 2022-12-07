@@ -52,10 +52,14 @@ for filename in os.listdir(LOCAL_DIR):
 
 print(f'Local files ({LOCAL_DIR}): {len(local_file_list)}')
 print('Comparing local and remote file lists...')
+
 files_to_upload = list(set(local_file_list) - set(remote_file_list))
+
+print(f'Found duplicate files: {(len(local_file_list) - len(files_to_upload))}')
+
 if LIMIT:
     files_to_upload = files_to_upload[:LIMIT]
-print(f'Found duplicate files: {(len(local_file_list) - len(files_to_upload))}')
+
 print(f'Files to upload: {len(files_to_upload)}')
 
 for filename in tqdm(files_to_upload):
